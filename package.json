@@ -1,0 +1,16 @@
+{
+    "name": "minesweeper",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "nyc --reporter=text mocha"
+    },
+    "author": "Nate Hatcher",
+    "license": "ISC",
+    "devDependencies": {
+        "chai": "^4.2.0",
+        "mocha": "^7.0.1",
+        "nyc": "^15.0.0"
+    }
+}
