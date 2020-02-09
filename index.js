@@ -6,7 +6,7 @@ const Nsweeper = require('./nsweeper');
 const commander = require('commander');
 
 const unselectedChar = '▆';
-const mineChar = '✖︎';
+const mineChar = 'X';
 
 const program = new commander.Command();
 program.version('1.0.0');
@@ -107,6 +107,7 @@ function printGame(game) {
     const val = arr[i];
     const transition = i + 1 === game.size;
     const horizontalHeaderNeeded = row === 0 && i === 0;
+    const thirdDimesionHeader = indices.length > 1 ? indices[indices.length - 2] + 1 : null;
     for (let i = 0; i < game.moves.length; i++) {
       if (JSON.stringify(game.moves[i]) === curIndexString) {
         visibile = true;
@@ -114,7 +115,7 @@ function printGame(game) {
       }
     }
     if (horizontalHeaderNeeded) {
-      printHeaderIndexes(game.size);
+      printHeaderIndexes(game.size, thirdDimesionHeader);
     }
     if (i === 0) {
       writeCell(row + 1);
@@ -148,9 +149,10 @@ function writeNewline() {
   process.stdout.write('\n');
 }
 
-function padCell(s, padTo = 4) {
+function padCell(input, rightPad = false, padTo = 4) {
+  let s = input.toString();
   while (s.length < padTo) {
-    s = ' ' + s;
+    s = rightPad ? s + ' ' : ' ' + s;
   }
   return s;
 }
@@ -159,13 +161,17 @@ function writeCell(input) {
   if (input === Nsweeper.MINE) {
     input = mineChar;
   }
-  const stringPaddedInput = padCell(input.toString());
+  const stringPaddedInput = padCell(input);
   process.stdout.write(stringPaddedInput);
 }
 
-function printHeaderIndexes(size) {
+function printHeaderIndexes(size, header = null) {
   writeNewline();
-  writeCell(' ');
+  if (header) {
+    process.stdout.write(padCell(header, true));
+  } else {
+    writeCell(' ');
+  }
   Array.from({ length: size }, (_, x) => writeCell(x + 1));
   writeNewline();
 }
