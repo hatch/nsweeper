@@ -98,6 +98,10 @@ async function main() {
       printGame(game, true);
       console.log('You hit a mine! Game over.');
       rl.close();
+    } else if (game.checkWin()) {
+      printGame(game, true);
+      console.log('You WON!');
+      rl.close();
     } else {
       printGame(game);
       process.stdout.write(prompt);

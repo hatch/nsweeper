@@ -21,6 +21,8 @@ class Nsweeper {
 
     // List of selections by player in chronological order
     this.moves = [];
+    this.flags = [];
+    this.validFlags = [];
     this.mineSelected = false;
     this.boardSize = Math.pow(size, dim);
   }
@@ -43,7 +45,23 @@ class Nsweeper {
       val = nearbyMines;
     }
     Nsweeper.addMoveAndOpenNeighbors(this.dim, this.size, indexesArray, this.board, this.moves);
+
+    if (this.checkWin()) {
+      val = `All ${this.mineCount} mines flagged or found, congrats!`;
+    }
+
     return { val, err: null };
+  }
+
+  checkWin() {
+    if (
+      !this.mineSelected &&
+      (this.moves.length + this.mineCount === this.boardSize ||
+        (this.flags.length === this.validFlags.length && this.validFlags.length === this.mineCount))
+    ) {
+      return true;
+    }
+    return false;
   }
 
   static setCell(board, indexesArray, val) {
