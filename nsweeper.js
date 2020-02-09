@@ -42,6 +42,12 @@ class Nsweeper {
       const neighbors = Nsweeper.getNeighbors({ dim: this.dim, size: this.size, indexesArray });
       const nearbyMines = Nsweeper.countMines(neighbors, this.board);
       Nsweeper.setCell(this.board, indexesArray, nearbyMines);
+      neighbors.map(n => {
+        const nVal = Nsweeper.peek(n, this.board);
+        if (nVal !== Nsweeper.MINE) {
+          Nsweeper.setCell(this.board, n, nVal - 1);
+        }
+      });
       val = nearbyMines;
     }
     Nsweeper.addMoveAndOpenNeighbors(
