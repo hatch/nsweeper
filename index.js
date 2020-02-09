@@ -3,6 +3,8 @@ const check = require('check-types');
 const Combinatorics = require('js-combinatorics');
 
 class Nsweeper {
+  static MINE = 'X';
+
   constructor({ dim = 2, size = 10, density = 0.2 } = {}) {
     Nsweeper.validate({ dim, size, density, maxBoardSize: 1000 * 1000 * 1000 });
 
@@ -17,8 +19,6 @@ class Nsweeper {
     this.moves = [];
     this.mineSelected = false;
   }
-
-  static MINE = 'X';
 
   select(indexesArray) {
     try {
@@ -89,6 +89,18 @@ class Nsweeper {
     return board;
   }
 
+  static createArray(dim, size) {
+    var arr = new Array(size);
+
+    if (dim > 1) {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = Nsweeper.createArray(dim - 1, size);
+      }
+    }
+
+    return arr;
+  }
+
   static nestedArrayIterator({ originalArr, arr, indices, condition, effect }) {
     if (Array.isArray(arr[0])) {
       for (let i = 0; i < arr.length; i++) {
@@ -102,6 +114,7 @@ class Nsweeper {
       }
     }
   }
+
   static getNeighbors({ dim, size, indexesArray }) {
     let neighbors = [];
     // Array of modifier sets which, when applied to the indexesArray,
@@ -150,18 +163,6 @@ class Nsweeper {
     check.assert.array.of.less(indexesArray, size);
     check.assert.array.of.greaterOrEqual(indexesArray, 0);
     check.assert.equal(indexesArray.length, dim);
-  }
-
-  static createArray(dim, size) {
-    var arr = new Array(size);
-
-    if (dim > 1) {
-      for (let i = 0; i < arr.length; i++) {
-        arr[i] = Nsweeper.createArray(dim - 1, size);
-      }
-    }
-
-    return arr;
   }
 }
 
