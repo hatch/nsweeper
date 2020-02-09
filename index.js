@@ -109,7 +109,7 @@ function printGame(game) {
     const horizontalHeaderNeeded = row === 0 && i === 0;
     const thirdDimesionHeader = indices.length > 1 ? indices[indices.length - 2] + 1 : null;
     for (let i = 0; i < game.moves.length; i++) {
-      if (JSON.stringify(game.moves[i]) === curIndexString) {
+      if (game.moves[i] === curIndexString) {
         visibile = true;
         break;
       }

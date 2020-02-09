@@ -29,12 +29,16 @@ class Nsweeper {
     if (err) {
       return { val: null, err };
     }
-    this.moves.push(indexesArray);
+    Nsweeper.addMoveAndOpenNeighbors(this.dim, this.size, indexesArray, this.board, this.moves);
     const val = Nsweeper.peek(indexesArray, this.board);
     if (val === Nsweeper.MINE) {
       this.mineSelected = true;
     }
     return { val, err: null };
+  }
+
+  static addMoveAndOpenNeighbors(dim, size, indexesArray, board, moves) {
+    moves.push(JSON.stringify(indexesArray));
   }
 
   static peek(indexesArray, board) {
@@ -174,10 +178,8 @@ class Nsweeper {
     }
 
     const curIndexString = JSON.stringify(indexesArray);
-    for (let i = 0; i < moves.length; i++) {
-      if (JSON.stringify(moves[i]) === curIndexString) {
-        return Nsweeper.ERROR_STRINGS.dup;
-      }
+    if (moves.indexOf(curIndexString) != -1) {
+      return Nsweeper.ERROR_STRINGS.dup;
     }
   }
 }

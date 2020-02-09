@@ -33,7 +33,7 @@ describe('nsweeper', function() {
           }
           assert.include([0, 1, 2, 3, 4, 5, 6, 7, 8, Nsweeper.MINE], revealed);
           assert(game.mineSelected === mineSelectedState);
-          assert.deepEqual([i, j], game.moves[game.moves.length - 1]);
+          assert.deepEqual(JSON.stringify([i, j]), game.moves[game.moves.length - 1]);
         }
       }
       assert(game.moves.length === Math.pow(size, dim));
