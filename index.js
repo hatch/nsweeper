@@ -1,6 +1,5 @@
 'use strict';
 const check = require('check-types');
-const MINE = 'X';
 
 class Nsweeper {
   constructor({ dim = 2, size = 10, density = 0.2 } = {}) {
@@ -18,17 +17,19 @@ class Nsweeper {
     this.mineSelected = false;
   }
 
+  static MINE = 'X';
+
   select(indexesArray, board = this.board) {
-    this.validateSelection(indexesArray);
+    Nsweeper.validateSelection(indexesArray, this.dim, this.size);
     this.moves.push(indexesArray);
-    const val = this.peek(indexesArray, board);
-    if (val === MINE) {
+    const val = Nsweeper.peek(indexesArray, board);
+    if (val === Nsweeper.MINE) {
       this.mineSelected = true;
     }
     return val;
   }
 
-  peek(indexesArray, board = this.board) {
+  static peek(indexesArray, board) {
     let toReturn = board;
     indexesArray.forEach(indexVal => {
       toReturn = toReturn[indexVal];
@@ -36,48 +37,67 @@ class Nsweeper {
     return toReturn;
   }
 
-  validateSelection(indexesArray, dim = this.dim, size = this.size) {
-    check.assert.array.of.integer(indexesArray);
-    check.assert.array.of.lessOrEqual(indexesArray, size);
-    check.assert.equal(indexesArray.length, dim);
-  }
-
   static buildBoard({ dim, size, density }) {
-    function createMine() {
-      return Math.random() < density;
-    }
-
     // Size board
     const board = Nsweeper.createArray(dim, size);
 
     // First pass, add mines
-    for (let i = 0; i < board.length; i++) {
-      if (createMine()) {
-        board[i] = MINE;
-      }
-    }
+    const addMineCondition = () => Math.random() < density;
+    const addMineEffect = (originalArr, arr, indices, i) => (arr[i] = Nsweeper.MINE);
+    Nsweeper.nestedArrayIterator({
+      originalArr: board,
+      arr: board,
+      indices: [],
+      condition: addMineCondition,
+      effect: addMineEffect,
+    });
 
     // Second pass, add numbers
-    for (let i = 0; i < board.length; i++) {
-      // Don't want to override mines with their neighbor mine count
-      if (board[i] === MINE) {
-        continue;
-      }
-      // Get neighbors based on size & dimensions
-      const neighbors = this.getNeighbors({ dim, size, index: i });
+    const addNumberCondition = ({ arr, i }) => {
+      // Skip mines, don't want to overwrite with numbers
+      return arr[i] !== Nsweeper.MINE;
+    };
+    const addNumberEffect = ({ originalArr, arr, indices, i }) => {
+      // Get neighbor index sets
+      const neighbors = Nsweeper.getNeighbors({
+        dim,
+        size,
+        indexesArray: [...indices, i],
+      });
 
       // Add up mines on neighbors
-      board[i] = neighbors.reduce((acc, cur) => {
-        if (cur === MINE) {
+      arr[i] = neighbors.reduce((acc, cur) => {
+        if (Nsweeper.peek(cur, originalArr) === Nsweeper.MINE) {
           acc++;
         }
         return acc;
       }, 0);
-    }
+    };
+    Nsweeper.nestedArrayIterator({
+      originalArr: board,
+      arr: board,
+      indices: [],
+      condition: addNumberCondition,
+      effect: addNumberEffect,
+    });
+
     return board;
   }
 
-  static getNeighbors({ dim, size, index }) {
+  static nestedArrayIterator({ originalArr, arr, indices, condition, effect }) {
+    if (Array.isArray(arr[0])) {
+      for (let i = 0; i < array.length; i++) {
+        nestedArrayIterator({ originalArr, arr: arr[i], indices: [...indices, i], condition, effect });
+      }
+    } else {
+      for (let i = 0; i < arr.length; i++) {
+        if (condition({ originalArr, arr, indices, i })) {
+          effect({ originalArr, arr, indices, i });
+        }
+      }
+    }
+  }
+  static getNeighbors({ dim, size, indexesArray }) {
     // TODO INPROG, BROKEN
     let n = [];
     const withinDimIndex = index % size;
@@ -107,6 +127,13 @@ class Nsweeper {
     check.assert.lessOrEqual(density, 1);
 
     check.assert.lessOrEqual(Math.pow(size, dim), maxBoardSize);
+  }
+
+  static validateSelection(indexesArray, dim, size) {
+    check.assert.array.of.integer(indexesArray);
+    check.assert.array.of.lessOrEqual(indexesArray, size);
+    check.assert.array.of.greaterOrEqual(indexesArray, 0);
+    check.assert.equal(indexesArray.length, dim);
   }
 
   static createArray(dim, size) {
