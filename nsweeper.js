@@ -12,7 +12,7 @@ class Nsweeper {
   constructor({ dim = 2, size = 10, density = 0.2 } = {}) {
     Nsweeper.validate({ dim, size, density, maxBoardSize: 1000 * 1000 * 1000 });
 
-    this.board = Nsweeper.buildBoard({ dim, size, density });
+    [this.board, this.mineCount] = Nsweeper.buildBoard({ dim, size, density });
 
     // For read use by front end
     this.dim = dim;
@@ -22,6 +22,7 @@ class Nsweeper {
     // List of selections by player in chronological order
     this.moves = [];
     this.mineSelected = false;
+    this.boardSize = Math.pow(size, dim);
   }
 
   select(indexesArray) {
@@ -35,6 +36,7 @@ class Nsweeper {
     }
     // If a mine is selected as first move, cheat and remove it
     if (val === Nsweeper.MINE && this.moves.length === 0) {
+      this.mineCount--;
       const neighbors = Nsweeper.getNeighbors({ dim: this.dim, size: this.size, indexesArray });
       const nearbyMines = Nsweeper.countMines(neighbors, this.board);
       Nsweeper.setCell(this.board, indexesArray, nearbyMines);
@@ -81,10 +83,14 @@ class Nsweeper {
   static buildBoard({ dim, size, density }) {
     // Size board
     const board = Nsweeper.createArray(dim, size);
+    let mineCount = 0;
 
     // First pass, add mines
     const addMineCondition = () => Math.random() < density;
-    const addMineEffect = ({ arr, i }) => (arr[i] = Nsweeper.MINE);
+    const addMineEffect = ({ arr, i }) => {
+      arr[i] = Nsweeper.MINE;
+      mineCount++;
+    };
     Nsweeper.nestedArrayIterator({
       originalArr: board,
       arr: board,
@@ -117,7 +123,7 @@ class Nsweeper {
       effect: addNumberEffect,
     });
 
-    return board;
+    return [board, mineCount];
   }
 
   static countMines(indexesArray, board) {
