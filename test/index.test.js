@@ -2,7 +2,7 @@ const assert = require('chai').assert;
 const Nsweeper = require('../index');
 
 describe('nsweeper', function() {
-  describe.skip('constructor', function() {
+  describe('constructor', function() {
     it('should create a game', function() {
       const game = new Nsweeper();
       assert.exists(game);
@@ -42,7 +42,7 @@ describe('nsweeper', function() {
   });
 
   describe.skip('Nsweeper.nestedArrayIterator', function() {
-    it('should work', function() {});
+    it('should have tests', function() {});
   });
 
   describe('Nsweeper.peek', function() {
@@ -66,7 +66,7 @@ describe('nsweeper', function() {
     });
   });
 
-  describe.skip('Nsweeper.buildBoard', function() {
+  describe('Nsweeper.buildBoard', function() {
     it('should handle 1 dimension', function() {
       const [dim, size, density] = [1, 5, 0.2];
       const board = Nsweeper.buildBoard({ dim, size, density });
@@ -74,18 +74,30 @@ describe('nsweeper', function() {
       assert(!Array.isArray(board[0]));
       assert(!Array.isArray(board[4]));
     });
-    it('should handle 2 dimensions', function() {
+    it('should handle 2 dimensions all mines', function() {
       const [dim, size, density] = [2, 5, 1];
       const board = Nsweeper.buildBoard({ dim, size, density });
       assert(board.length === 5);
       const X = Nsweeper.MINE;
-      console.log(board);
       assert.sameDeepOrderedMembers(board, [
         [X, X, X, X, X],
         [X, X, X, X, X],
         [X, X, X, X, X],
         [X, X, X, X, X],
         [X, X, X, X, X],
+      ]);
+    });
+    it('should handle 2 dimensions no mines', function() {
+      const [dim, size, density] = [2, 5, 0];
+      const board = Nsweeper.buildBoard({ dim, size, density });
+      assert(board.length === 5);
+      const X = Nsweeper.MINE;
+      assert.sameDeepOrderedMembers(board, [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
       ]);
     });
   });
@@ -117,56 +129,115 @@ describe('nsweeper', function() {
     });
   });
 
-  describe.skip('getNeighbors', function() {
+  describe('getNeighbors', function() {
     describe('1 dimension', function() {
-      it('should work', function() {
-        const [dim, size, index] = [1, 5, 3];
-        const neighbors = Nsweeper.getNeighbors({ dim, size, index });
+      it('middle', function() {
+        const [dim, size, indexesArray] = [1, 5, [3]];
+        const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
         assert(Array.isArray(neighbors));
         assert(neighbors.length == 2);
-        assert.sameMembers(neighbors, [2, 4]);
+        assert.sameDeepMembers(neighbors, [[2], [4]]);
+      });
+
+      it('left', function() {
+        const [dim, size, indexesArray] = [1, 5, [0]];
+        const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
+        assert(Array.isArray(neighbors));
+        assert(neighbors.length == 1);
+        assert.sameDeepMembers(neighbors, [[1]]);
+      });
+
+      it('right', function() {
+        const [dim, size, indexesArray] = [1, 5, [4]];
+        const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
+        assert(Array.isArray(neighbors));
+        assert(neighbors.length == 1);
+        assert.sameDeepMembers(neighbors, [[3]]);
       });
     });
 
     describe('2 dimensions', function() {
       it('top of grid', function() {
-        const [dim, size, index] = [2, 5, 3];
-        const neighbors = Nsweeper.getNeighbors({ dim, size, index });
+        const [dim, size, indexesArray] = [2, 5, [0, 3]];
+        const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
         assert(Array.isArray(neighbors));
         assert(neighbors.length == 5);
-        assert.sameMembers(neighbors, [2, 4, 7, 8, 9]);
+        assert.sameDeepMembers(neighbors, [
+          [0, 2],
+          [0, 4],
+          [1, 2],
+          [1, 3],
+          [1, 4],
+        ]);
       });
 
       it('middle of grid', function() {
-        const [dim, size, index] = [2, 5, 12];
-        const neighbors = Nsweeper.getNeighbors({ dim, size, index });
+        const [dim, size, indexesArray] = [2, 5, [2, 2]];
+        const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
         assert(Array.isArray(neighbors));
         assert(neighbors.length == 8);
-        assert.sameMembers(neighbors, [6, 7, 8, 11, 13, 16, 17, 18]);
+        assert.sameDeepMembers(neighbors, [
+          [1, 1],
+          [1, 2],
+          [1, 3],
+          [2, 1],
+          [2, 3],
+          [3, 1],
+          [3, 2],
+          [3, 3],
+        ]);
       });
 
       it('bottom of grid', function() {
-        const [dim, size, index] = [2, 5, 21];
-        const neighbors = Nsweeper.getNeighbors({ dim, size, index });
+        const [dim, size, indexesArray] = [2, 5, [4, 2]];
+        const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
         assert(Array.isArray(neighbors));
         assert(neighbors.length == 5);
-        assert.sameMembers(neighbors, [20, 15, 16, 17, 22]);
+        assert.sameDeepMembers(neighbors, [
+          [4, 1],
+          [3, 1],
+          [3, 2],
+          [3, 3],
+          [4, 3],
+        ]);
       });
 
       it('left middle of grid', function() {
-        const [dim, size, index] = [2, 5, 10];
-        const neighbors = Nsweeper.getNeighbors({ dim, size, index });
+        const [dim, size, indexesArray] = [2, 5, [2, 0]];
+        const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
         assert(Array.isArray(neighbors));
         assert(neighbors.length == 5);
-        assert.sameMembers(neighbors, [5, 6, 11, 15, 16]);
+        assert.sameDeepMembers(neighbors, [
+          [1, 0],
+          [1, 1],
+          [2, 1],
+          [3, 0],
+          [3, 1],
+        ]);
       });
 
       it('right bottom corner of grid', function() {
-        const [dim, size, index] = [2, 5, 24];
-        const neighbors = Nsweeper.getNeighbors({ dim, size, index });
+        const [dim, size, indexesArray] = [2, 5, [4, 4]];
+        const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
         assert(Array.isArray(neighbors));
         assert(neighbors.length == 3);
-        assert.sameMembers(neighbors, [18, 19, 23]);
+        assert.sameDeepMembers(neighbors, [
+          [3, 3],
+          [3, 4],
+          [4, 3],
+        ]);
+      });
+
+      it('top left  corner of grid', function() {
+        const [dim, size, indexesArray] = [2, 5, [0, 0]];
+        const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
+        assert(Array.isArray(neighbors));
+        assert(neighbors.length == 3);
+        assert.sameDeepMembers(neighbors, [
+          [0, 1],
+          [1, 1],
+          [1, 0],
+        ]);
       });
     });
   });

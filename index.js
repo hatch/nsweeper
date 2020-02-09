@@ -1,5 +1,6 @@
 'use strict';
 const check = require('check-types');
+const Combinatorics = require('js-combinatorics');
 
 class Nsweeper {
   constructor({ dim = 2, size = 10, density = 0.2 } = {}) {
@@ -43,7 +44,7 @@ class Nsweeper {
 
     // First pass, add mines
     const addMineCondition = () => Math.random() < density;
-    const addMineEffect = (originalArr, arr, indices, i) => (arr[i] = Nsweeper.MINE);
+    const addMineEffect = ({ arr, i }) => (arr[i] = Nsweeper.MINE);
     Nsweeper.nestedArrayIterator({
       originalArr: board,
       arr: board,
@@ -86,8 +87,8 @@ class Nsweeper {
 
   static nestedArrayIterator({ originalArr, arr, indices, condition, effect }) {
     if (Array.isArray(arr[0])) {
-      for (let i = 0; i < array.length; i++) {
-        nestedArrayIterator({ originalArr, arr: arr[i], indices: [...indices, i], condition, effect });
+      for (let i = 0; i < arr.length; i++) {
+        Nsweeper.nestedArrayIterator({ originalArr, arr: arr[i], indices: [...indices, i], condition, effect });
       }
     } else {
       for (let i = 0; i < arr.length; i++) {
@@ -98,23 +99,34 @@ class Nsweeper {
     }
   }
   static getNeighbors({ dim, size, indexesArray }) {
-    // TODO INPROG, BROKEN
-    let n = [];
-    const withinDimIndex = index % size;
-    // Iterate through dimensions
-    for (let d = 0; d < dim; d++) {
-      const base = size * d + withinDimIndex;
-      n.push(base);
-      if (withinDimIndex !== 0) {
-        n.push(base - 1);
+    let neighbors = [];
+    // Array of modifier sets which, when applied to the indexesArray,
+    // will produce one of the possible neighbors
+    // Still need to be checked to make sure they're within size and
+    // not the starting point itself.
+    const modifiers = Combinatorics.baseN([-1, 0, 1], dim);
+    let mod = modifiers.next();
+    while (mod !== undefined) {
+      // Skip input indexesArray
+      if (check.array.of.equal(mod, 0)) {
+        mod = modifiers.next();
+        continue;
       }
-      if (withinDimIndex !== size - 1) {
-        n.push(base + 1);
+      const potentialNeighbor = [];
+      for (let i = 0; i < indexesArray.length; i++) {
+        const toAdd = indexesArray[i] + mod[i];
+        if (toAdd >= 0 && toAdd < size) {
+          potentialNeighbor.push(toAdd);
+        }
       }
+      // Potential neighbor will be shorter if any of its indices would be out of range
+      if (potentialNeighbor.length === indexesArray.length) {
+        neighbors.push(potentialNeighbor);
+      }
+
+      mod = modifiers.next();
     }
-    // Remove the original index
-    n.splice(n.indexOf(index), 1);
-    return n;
+    return neighbors;
   }
 
   static validate({ dim, size, density, maxBoardSize }) {
