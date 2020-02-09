@@ -4,6 +4,8 @@
 const readline = require('readline');
 const Nsweeper = require('./nsweeper');
 const commander = require('commander');
+
+const unselectedChar = '▇';
 const program = new commander.Command();
 program.version('1.0.0');
 
@@ -51,17 +53,27 @@ async function main() {
     output: process.stdout,
   });
 
+  const prompt = 'Pick coordinates, exit, moves, or help: ';
   printGame(game);
-  process.stdout.write('Pick coordinates, exit, or help: ');
+  process.stdout.write(prompt);
   for await (const line of rl) {
     if (line === 'quit' || line === 'exit') {
+      console.log();
       rl.close();
     }
     if (line === 'help' || line === 'h') {
       console.log(
-        '\nSelect coordination with a list of numbers separated by a non number character.\nExample: "0 1" will pick top row, one to the right on a grid.\nAdditional dimensions just require additional numbers.'
+        '\nSelect coordination with a list of numbers separated by a non number character.\nExample: "0 1" will pick top row, one to the right on a grid.\nAdditional dimensions just require additional numbers.\n'
       );
-      process.stdout.write('\nPick coordinates, exit, or help: ');
+      process.stdout.write(prompt);
+      continue;
+    }
+    if (line === 'moves' || line === 'move') {
+      writeNewline();
+      console.log('Moves in order:');
+      game.moves.map(m => console.log(m));
+      writeNewline();
+      process.stdout.write(prompt);
       continue;
     }
     const indexes = parseSelection(line);
@@ -77,17 +89,12 @@ async function main() {
       rl.close();
     } else {
       printGame(game);
-      process.stdout.write('Pick coordinates, exit, or help: ');
+      process.stdout.write(prompt);
     }
   }
 }
 
 function printGame(game) {
-  // print top indexes
-  writeCell(' ');
-  Array.from({ length: game.size }, (_, x) => writeCell(x + 1));
-  writeNewline();
-
   function condition() {
     return true;
   }
@@ -97,11 +104,15 @@ function printGame(game) {
     const row = indices[indices.length - 1];
     const val = arr[i];
     const transition = i + 1 === game.size;
+    const horizontalHeaderNeeded = row === 0 && i === 0;
     for (let i = 0; i < game.moves.length; i++) {
       if (JSON.stringify(game.moves[i]) === curIndexString) {
         visibile = true;
         break;
       }
+    }
+    if (horizontalHeaderNeeded) {
+      printHeaderIndexes(game.size);
     }
     if (i === 0) {
       writeCell(row + 1);
@@ -110,7 +121,7 @@ function printGame(game) {
     if (visibile) {
       writeCell(val);
     } else {
-      writeCell('*');
+      writeCell(unselectedChar);
     }
     if (transition) {
       writeNewline();
@@ -145,6 +156,13 @@ function padCell(s, padTo = 4) {
 function writeCell(input) {
   const stringPaddedInput = padCell(input.toString());
   process.stdout.write(stringPaddedInput);
+}
+
+function printHeaderIndexes(size) {
+  writeNewline();
+  writeCell(' ');
+  Array.from({ length: size }, (_, x) => writeCell(x + 1));
+  writeNewline();
 }
 
 main();
