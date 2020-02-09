@@ -60,6 +60,7 @@ Pick coordinates, exit, moves, or help:
 ```
 
 Gif example:
+
 ![Demo](nsweeper_demo.gif)
 
 ## Authors
