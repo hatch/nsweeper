@@ -4,6 +4,10 @@ const Combinatorics = require('js-combinatorics');
 
 class Nsweeper {
   static MINE = 'X';
+  static ERROR_STRINGS = {
+    invalid: 'Invalid selection for this board',
+    dup: 'Already selected those coordinations',
+  };
 
   constructor({ dim = 2, size = 10, density = 0.2 } = {}) {
     Nsweeper.validate({ dim, size, density, maxBoardSize: 1000 * 1000 * 1000 });
@@ -21,10 +25,9 @@ class Nsweeper {
   }
 
   select(indexesArray) {
-    try {
-      Nsweeper.validateSelection(indexesArray, this.dim, this.size);
-    } catch (err) {
-      return { val: null, err: 'Invalid selection for this board' };
+    const err = Nsweeper.validateSelection(indexesArray, this.dim, this.size, this.moves);
+    if (err) {
+      return { val: null, err };
     }
     this.moves.push(indexesArray);
     const val = Nsweeper.peek(indexesArray, this.board);
@@ -158,11 +161,24 @@ class Nsweeper {
     check.assert.lessOrEqual(Math.pow(size, dim), maxBoardSize);
   }
 
-  static validateSelection(indexesArray, dim, size) {
-    check.assert.array.of.integer(indexesArray);
-    check.assert.array.of.less(indexesArray, size);
-    check.assert.array.of.greaterOrEqual(indexesArray, 0);
-    check.assert.equal(indexesArray.length, dim);
+  static validateSelection(indexesArray, dim, size, moves) {
+    if (
+      !(
+        check.array.of.integer(indexesArray) &&
+        check.array.of.less(indexesArray, size) &&
+        check.array.of.greaterOrEqual(indexesArray, 0) &&
+        check.equal(indexesArray.length, dim)
+      )
+    ) {
+      return Nsweeper.ERROR_STRINGS.invalid;
+    }
+
+    const curIndexString = JSON.stringify(indexesArray);
+    for (let i = 0; i < moves.length; i++) {
+      if (JSON.stringify(moves[i]) === curIndexString) {
+        return Nsweeper.ERROR_STRINGS.dup;
+      }
+    }
   }
 }
 

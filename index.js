@@ -5,7 +5,9 @@ const readline = require('readline');
 const Nsweeper = require('./nsweeper');
 const commander = require('commander');
 
-const unselectedChar = '▇';
+const unselectedChar = '▆';
+const mineChar = '✖︎';
+
 const program = new commander.Command();
 program.version('1.0.0');
 
@@ -63,7 +65,7 @@ async function main() {
     }
     if (line === 'help' || line === 'h') {
       console.log(
-        '\nSelect coordination with a list of numbers separated by a non number character.\nExample: "0 1" will pick top row, one to the right on a grid.\nAdditional dimensions just require additional numbers.\n'
+        '\nSelect coordination with a list of numbers separated by a non number character.\nExample: "1 2" will pick top row, one to the right on a grid.\nAdditional dimensions require additional numbers, for example this would be a valid coordinate set for a 4 dimensional board: "1 2 3 4".\n'
       );
       process.stdout.write(prompt);
       continue;
@@ -154,6 +156,9 @@ function padCell(s, padTo = 4) {
 }
 
 function writeCell(input) {
+  if (input === Nsweeper.MINE) {
+    input = mineChar;
+  }
   const stringPaddedInput = padCell(input.toString());
   process.stdout.write(stringPaddedInput);
 }

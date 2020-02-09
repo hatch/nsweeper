@@ -65,6 +65,21 @@ describe('nsweeper', function() {
       assert.isFalse(game.mineSelected);
       assert(game.moves.length === 0);
     });
+
+    it('should return error string if same coords are selected multiple times', function() {
+      const dim = 2;
+      const size = 5;
+      const game = new Nsweeper({ dim, size });
+
+      game.select([0, 0]);
+      const resp = game.select([0, 0]);
+      assert(resp.val === null);
+      assert.isString(resp.err);
+      assert.equal(resp.err, Nsweeper.ERROR_STRINGS.dup);
+
+      // Should only have one move
+      assert(game.moves.length === 1);
+    });
   });
 
   describe('Nsweeper.createArray', function() {
@@ -158,25 +173,33 @@ describe('nsweeper', function() {
       const indexesArray = [0, 1, 2];
       const dim = 3;
       const size = 3;
-      assert.doesNotThrow(Nsweeper.validateSelection.bind(this, indexesArray, dim, size));
+      const moves = [];
+      const err = Nsweeper.validateSelection(indexesArray, dim, size, moves);
+      assert.notExists(err);
     });
     it('should throw on out of range input (dim)', function() {
       const indexesArray = [0, 1, 2, 1];
       const dim = 3;
       const size = 3;
-      assert.throws(Nsweeper.validateSelection.bind(this, indexesArray, dim, size));
+      const moves = [];
+      const err = Nsweeper.validateSelection(indexesArray, dim, size, moves);
+      assert(err === Nsweeper.ERROR_STRINGS.invalid);
     });
     it('should throw on out of range input (size)', function() {
       const indexesArray = [0, 4, 2];
       const dim = 3;
       const size = 3;
-      assert.throws(Nsweeper.validateSelection.bind(this, indexesArray, dim, size));
+      const moves = [];
+      const err = Nsweeper.validateSelection(indexesArray, dim, size, moves);
+      assert(err === Nsweeper.ERROR_STRINGS.invalid);
     });
     it('should throw on out of range input (negative index)', function() {
       const indexesArray = [0, -1, 2];
       const dim = 3;
       const size = 3;
-      assert.throws(Nsweeper.validateSelection.bind(this, indexesArray, dim, size));
+      const moves = [];
+      const err = Nsweeper.validateSelection(indexesArray, dim, size, moves);
+      assert(err === Nsweeper.ERROR_STRINGS.invalid);
     });
   });
 
