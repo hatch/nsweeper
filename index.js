@@ -126,7 +126,7 @@ function printGame(game, fullBoard = false) {
   function effect({ arr, indices, i }) {
     let visibile = false;
     const curIndexString = JSON.stringify([...indices, i]);
-    const row = indices[indices.length - 1];
+    const row = indices[indices.length - 1] || 0;
     const val = arr[i];
     const transition = i + 1 === game.size;
     const horizontalHeaderNeeded = row === 0 && i === 0;
@@ -141,7 +141,11 @@ function printGame(game, fullBoard = false) {
       printHeaderIndexes(game.size, thirdDimesionHeader);
     }
     if (i === 0) {
-      writeCell(row + 1);
+      if (indices.length > 0) {
+        writeCell(row + 1);
+      } else {
+        writeCell(' ');
+      }
     }
 
     if (visibile || fullBoard) {
