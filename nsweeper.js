@@ -55,7 +55,7 @@ class Nsweeper {
     );
 
     if (this.checkWin()) {
-      val = `All ${this.mineCount} mines flagged or found, congrats!`;
+      val = `All ${this.mineCount} mines out of ${this.boardSize} cells flagged or found, congrats!`;
     }
 
     return { val, err: null };
