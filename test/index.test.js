@@ -16,6 +16,28 @@ describe('nsweeper', function() {
     });
   });
 
+  describe('#select', function() {
+    it('should be able to play a game', function() {
+      const dim = 2;
+      const size = 5;
+      const game = new Nsweeper({ dim, size });
+      let mineSelectedState = false;
+      assert(game.mineSelected === mineSelectedState);
+      for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+          const revealed = game.select([i, j]);
+          if (revealed === Nsweeper.MINE) {
+            mineSelectedState = true;
+          }
+          assert.include([0, 1, 2, 3, 4, 5, 6, 7, 8, Nsweeper.MINE], revealed);
+          assert(game.mineSelected === mineSelectedState);
+          assert.deepEqual([i, j], game.moves[game.moves.length - 1]);
+        }
+      }
+      assert(game.moves.length === Math.pow(size, dim));
+    });
+  });
+
   describe('Nsweeper.createArray', function() {
     it('should handle 1 dimension', function() {
       const arr = Nsweeper.createArray(1, 5);
@@ -129,7 +151,7 @@ describe('nsweeper', function() {
     });
   });
 
-  describe('getNeighbors', function() {
+  describe('Nsweeper.getNeighbors', function() {
     describe('1 dimension', function() {
       it('middle', function() {
         const [dim, size, indexesArray] = [1, 5, [3]];
