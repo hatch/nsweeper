@@ -59,6 +59,9 @@ Play on the command line:
 Pick coordinates, exit, moves, or help:
 ```
 
+Gif example:
+![Demo](nsweeper_demo.gif)
+
 ## Authors
 
 - **Nate Hatcher** - _Original Author_ - [hatch](https://github.com/hatch)
