@@ -79,6 +79,17 @@ describe('nsweeper', function() {
       assert.isString(resp.err);
       assert.equal(resp.err, Nsweeper.ERROR_STRINGS.dup);
     });
+
+    it('should be impossible to hit a mine on the first turn', function() {
+      const dim = 2;
+      const size = 5;
+      const density = 1;
+      const game = new Nsweeper({ dim, size, density });
+
+      const resp = game.select([0, 0]);
+      assert(resp.err === null);
+      assert(resp.val !== Nsweeper.MINE);
+    });
   });
 
   describe('Nsweeper.createArray', function() {

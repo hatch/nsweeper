@@ -29,12 +29,29 @@ class Nsweeper {
     if (err) {
       return { val: null, err };
     }
-    Nsweeper.addMoveAndOpenNeighbors(this.dim, this.size, indexesArray, this.board, this.moves);
-    const val = Nsweeper.peek(indexesArray, this.board);
-    if (val === Nsweeper.MINE) {
+    let val = Nsweeper.peek(indexesArray, this.board);
+    if (val === Nsweeper.MINE && this.moves.length > 0) {
       this.mineSelected = true;
     }
+    // If a mine is selected as first move, cheat and remove it
+    if (val === Nsweeper.MINE && this.moves.length === 0) {
+      const neighbors = Nsweeper.getNeighbors({ dim: this.dim, size: this.size, indexesArray });
+      const nearbyMines = Nsweeper.countMines(neighbors, this.board);
+      Nsweeper.setCell(this.board, indexesArray, nearbyMines);
+      val = nearbyMines;
+    }
+    Nsweeper.addMoveAndOpenNeighbors(this.dim, this.size, indexesArray, this.board, this.moves);
     return { val, err: null };
+  }
+
+  static setCell(board, indexesArray, val) {
+    let cur = board;
+    for (let i = 0; i < indexesArray.length; i++) {
+      if (i === indexesArray.length - 1) {
+        cur[indexesArray[i]] = val;
+      }
+      cur = cur[indexesArray[i]];
+    }
   }
 
   static addMoveAndOpenNeighbors(dim, size, indexesArray, board, moves) {
@@ -90,12 +107,7 @@ class Nsweeper {
       });
 
       // Add up mines on neighbors
-      arr[i] = neighbors.reduce((acc, cur) => {
-        if (Nsweeper.peek(cur, originalArr) === Nsweeper.MINE) {
-          acc++;
-        }
-        return acc;
-      }, 0);
+      arr[i] = Nsweeper.countMines(neighbors, originalArr);
     };
     Nsweeper.nestedArrayIterator({
       originalArr: board,
@@ -106,6 +118,15 @@ class Nsweeper {
     });
 
     return board;
+  }
+
+  static countMines(indexesArray, board) {
+    return indexesArray.reduce((acc, cur) => {
+      if (Nsweeper.peek(cur, board) === Nsweeper.MINE) {
+        acc++;
+      }
+      return acc;
+    }, 0);
   }
 
   static createArray(dim, size) {
