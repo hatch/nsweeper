@@ -44,13 +44,39 @@ class Nsweeper {
       Nsweeper.setCell(this.board, indexesArray, nearbyMines);
       val = nearbyMines;
     }
-    Nsweeper.addMoveAndOpenNeighbors(this.dim, this.size, indexesArray, this.board, this.moves);
+    Nsweeper.addMoveAndOpenNeighbors(
+      this.dim,
+      this.size,
+      indexesArray,
+      this.board,
+      this.moves,
+      this.flags,
+      this.validFlags
+    );
 
     if (this.checkWin()) {
       val = `All ${this.mineCount} mines flagged or found, congrats!`;
     }
 
     return { val, err: null };
+  }
+
+  toggleFlag(indexesArray) {
+    const err = Nsweeper.validateSelection(indexesArray, this.dim, this.size, this.moves);
+    if (err) {
+      return { val: null, err };
+    }
+    const flagString = JSON.stringify(indexesArray);
+    if (this.flags.indexOf(flagString) !== -1) {
+      Nsweeper.removeValueFromArray(flags, flagString);
+      Nsweeper.removeValueFromArray(validFlags, flagString);
+    } else {
+      this.flags.push(flagString);
+      let val = Nsweeper.peek(indexesArray, this.board);
+      if (val === Nsweeper.MINE) {
+        this.validFlags.push(flagString);
+      }
+    }
   }
 
   checkWin() {
@@ -74,20 +100,30 @@ class Nsweeper {
     }
   }
 
-  static addMoveAndOpenNeighbors(dim, size, indexesArray, board, moves) {
+  static addMoveAndOpenNeighbors(dim, size, indexesArray, board, moves, flags, validFlags) {
     const curIndexString = JSON.stringify(indexesArray);
     if (moves.indexOf(curIndexString) !== -1) {
       return;
     }
     moves.push(curIndexString);
+
+    // Selection removes the flag
+    Nsweeper.removeValueFromArray(flags, curIndexString);
+    Nsweeper.removeValueFromArray(validFlags, curIndexString);
+
     const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
     const validNeighbors = neighbors.filter(nIndexes => {
       const nVal = Nsweeper.peek(nIndexes, board);
       return nVal !== Nsweeper.MINE && moves.indexOf(JSON.stringify(nIndexes)) === -1;
     });
     validNeighbors.map(nIndexes => {
-      Nsweeper.addMoveAndOpenNeighbors(dim, size, nIndexes, board, moves);
+      Nsweeper.addMoveAndOpenNeighbors(dim, size, nIndexes, board, moves, flags, validFlags);
     });
+  }
+
+  static removeValueFromArray(arr, val) {
+    const index = arr.indexOf(val);
+    if (index !== -1) arr.splice(index, 1);
   }
 
   static peek(indexesArray, board) {
