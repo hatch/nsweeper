@@ -62,7 +62,7 @@ class Nsweeper {
     );
 
     if (this.checkWin()) {
-      val = `All ${this.mineCount} mines out of ${this.boardSize} cells flagged or found, congrats!`;
+      val = `All ${this.mineCount} mines out of ${this.boardSize} cells found, congrats!`;
     }
 
     return { val, err: null };
@@ -110,6 +110,10 @@ class Nsweeper {
   }
 
   static addMoveAndOpenNeighbors(dim, size, indexesArray, board, moves, flags, validFlags) {
+    // TODO FIXME This algorithm should actually be:
+    // 1. If selection is 0, reveal all spaces around it.
+    // 2. Recurse to all neighbor spaces that are 0.
+    //
     const curIndexString = JSON.stringify(indexesArray);
     if (moves.indexOf(curIndexString) !== -1) {
       return;

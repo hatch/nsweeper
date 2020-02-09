@@ -104,16 +104,14 @@ async function main() {
       console.log('=> Toggling flag...\n');
       const indexes = parseSelection(line);
       game.toggleFlag(indexes);
-      printGame(game);
-      process.stdout.write(prompt);
-      continue;
-    }
-    const indexes = parseSelection(line);
-    const resp = game.select(indexes);
-    if (resp.err) {
-      console.log(`=> ${resp.err}\n`);
     } else {
-      console.log(`=> Revealed ${resp.val}\n`);
+      const indexes = parseSelection(line);
+      const resp = game.select(indexes);
+      if (resp.err) {
+        console.log(`=> ${resp.err}\n`);
+      } else {
+        console.log(`=> Revealed ${resp.val}\n`);
+      }
     }
     if (game.mineSelected) {
       printGame(game, true);
@@ -159,15 +157,14 @@ function printGame(game, fullBoard = false) {
       }
     }
 
-    if (visibile || fullBoard) {
+    if (game.flags.indexOf(curIndexString) !== -1) {
+      writeCell(flagChar);
+    } else if (visibile || fullBoard) {
       writeCell(val);
     } else {
-      if (game.flags.indexOf(curIndexString) !== -1) {
-        writeCell(flagChar);
-      } else {
-        writeCell(unselectedChar);
-      }
+      writeCell(unselectedChar);
     }
+
     if (transition) {
       writeNewline();
     }
