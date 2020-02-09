@@ -13,8 +13,33 @@ class Nsweeper {
     this.size = size;
     this.density = density;
 
-    // List of indexes selected by player in order of selection
+    // List of selections by player in chronological order
     this.moves = [];
+    this.mineSelected = false;
+  }
+
+  select(indexesArray, board = this.board) {
+    this.validateSelection(indexesArray);
+    this.moves.push(indexesArray);
+    const val = this.peek(indexesArray, board);
+    if (val === MINE) {
+      this.mineSelected = true;
+    }
+    return val;
+  }
+
+  peek(indexesArray, board = this.board) {
+    let toReturn = board;
+    indexesArray.forEach(indexVal => {
+      toReturn = toReturn[indexVal];
+    });
+    return toReturn;
+  }
+
+  validateSelection(indexesArray, dim = this.dim, size = this.size) {
+    check.assert.array.of.integer(indexesArray);
+    check.assert.array.of.lessOrEqual(indexesArray, size);
+    check.assert.equal(indexesArray.length, dim);
   }
 
   static buildBoard({ dim, size, density }) {
@@ -23,7 +48,7 @@ class Nsweeper {
     }
 
     // Size board
-    const board = new Array(Math.pow(size, dim));
+    const board = Nsweeper.createArray(dim, size);
 
     // First pass, add mines
     for (let i = 0; i < board.length; i++) {
@@ -82,6 +107,18 @@ class Nsweeper {
     check.assert.lessOrEqual(density, 1);
 
     check.assert.lessOrEqual(Math.pow(size, dim), maxBoardSize);
+  }
+
+  static createArray(dim, size) {
+    var arr = new Array(size);
+
+    if (dim > 1) {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = Nsweeper.createArray(dim - 1, size);
+      }
+    }
+
+    return arr;
   }
 }
 

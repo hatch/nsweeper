@@ -16,6 +16,31 @@ describe('nsweeper', function() {
     });
   });
 
+  describe('createArray', function() {
+    it('should handle 1 dimension', function() {
+      const arr = Nsweeper.createArray(1, 5);
+      assert(arr.length === 5);
+      assert(!Array.isArray(arr[0]));
+      assert(!Array.isArray(arr[4]));
+    });
+    it('should handle 2 dimensions', function() {
+      const arr = Nsweeper.createArray(2, 7);
+      assert(arr[0].length === 7);
+      assert(Array.isArray(arr[0]));
+      assert(arr[6].length === 7);
+      assert(Array.isArray(arr[6]));
+    });
+    it('should handle 3 dimensions', function() {
+      const arr = Nsweeper.createArray(3, 3);
+      assert(arr[0][0].length === 3);
+      assert(Array.isArray(arr[0]));
+      assert(Array.isArray(arr[0][0]));
+      assert(arr[2][2].length === 3);
+      assert(Array.isArray(arr[2]));
+      assert(Array.isArray(arr[2][2]));
+    });
+  });
+
   describe('getNeighbors', function() {
     describe('1 dimension', function() {
       it('should work', function() {
