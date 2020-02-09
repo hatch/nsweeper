@@ -86,7 +86,7 @@ async function main() {
       console.log(`=> Revealed ${resp.val}\n`);
     }
     if (game.mineSelected) {
-      printGame(game);
+      printGame(game, true);
       console.log('You hit a mine! Game over.');
       rl.close();
     } else {
@@ -96,7 +96,7 @@ async function main() {
   }
 }
 
-function printGame(game) {
+function printGame(game, fullBoard = false) {
   function condition() {
     return true;
   }
@@ -121,7 +121,7 @@ function printGame(game) {
       writeCell(row + 1);
     }
 
-    if (visibile) {
+    if (visibile || fullBoard) {
       writeCell(val);
     } else {
       writeCell(unselectedChar);
