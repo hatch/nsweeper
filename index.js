@@ -2,11 +2,18 @@
 
 'use strict';
 const readline = require('readline');
+const clear = require('clear');
 const Nsweeper = require('./nsweeper');
 const commander = require('commander');
 
 const unselectedChar = '▆';
 const mineChar = 'X';
+const helpText = `
+Select coordination with a list of numbers separated by a non number character.
+Example: "1 2" will pick top row, one to the right on a grid.
+Additional dimensions require additional numbers, for example this would be a
+ valid coordinate set for a 4 dimensional board: "1 2 3 4".
+`;
 
 const program = new commander.Command();
 program.version('1.0.0');
@@ -26,7 +33,7 @@ program
     '-x, --difficulty <float>',
     'difficulty, a float between 0 and 1 that reflects mine density',
     optParsePercent,
-    0.1
+    0.5
   )
   .parse(process.argv);
 
@@ -44,37 +51,39 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(
-    `\nInitialized nsweeper board with ${game.dim} dimensions, ${game.size} size per dimension, containing ${Math.floor(
-      game.density * 100
-    )}% mines.\n`
-  );
-
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
   const prompt = 'Pick coordinates, exit, moves, or help: ';
+  clear();
+  console.log(
+    `=> Initialized nsweeper board with ${game.dim} dimensions, ${
+      game.size
+    } length per dimension, containing ${Math.floor(game.density * 100)}% mines.
+  `
+  );
   printGame(game);
   process.stdout.write(prompt);
   for await (const line of rl) {
+    clear();
     if (line === 'quit' || line === 'exit') {
-      console.log();
+      console.log('=> Exiting...');
       rl.close();
+      continue;
     }
     if (line === 'help' || line === 'h') {
-      console.log(
-        '\nSelect coordination with a list of numbers separated by a non number character.\nExample: "1 2" will pick top row, one to the right on a grid.\nAdditional dimensions require additional numbers, for example this would be a valid coordinate set for a 4 dimensional board: "1 2 3 4".\n'
-      );
+      console.log('=> Displaying help...\n');
+      printGame(game);
+      console.log(helpText);
       process.stdout.write(prompt);
       continue;
     }
     if (line === 'moves' || line === 'move') {
-      writeNewline();
-      console.log('Moves in order:');
-      game.moves.map(m => console.log(m));
-      writeNewline();
+      console.log('=> Displaying moves...\n');
+      printGame(game);
+      console.log(game.moves);
       process.stdout.write(prompt);
       continue;
     }

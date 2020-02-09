@@ -1,7 +1,7 @@
 {
-  "name": "minesweeper",
+  "name": "nsweeper",
   "version": "1.0.0",
-  "description": "",
+  "description": "Minesweeper to the nth dimension.",
   "main": "index.js",
   "scripts": {
     "test": "nyc --reporter=text mocha"
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "check-types": "^11.1.2",
+    "clear": "^0.1.0",
     "commander": "^4.1.1",
     "js-combinatorics": "^0.5.5"
   }
