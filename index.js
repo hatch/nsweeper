@@ -7,10 +7,23 @@ const commander = require('commander');
 const program = new commander.Command();
 program.version('1.0.0');
 
+function optParseInt(value) {
+  return parseInt(value);
+}
+
+function optParsePercent(value) {
+  return parseFloat(value);
+}
+
 program
-  .option('-s, --size <number>', 'size of board along each dimension', 10, parseInt)
-  .option('-d, --dimension <number>', 'number of dimensions', 2, parseInt)
-  .option('-x, --difficulty <float>', 'difficulty, a float between 0 and 1 that reflects mine density', 0.1, parseFloat)
+  .option('-s, --size <number>', 'size of board along each dimension', optParseInt, 10)
+  .option('-d, --dimension <number>', 'number of dimensions', optParseInt, 2)
+  .option(
+    '-x, --difficulty <float>',
+    'difficulty, a float between 0 and 1 that reflects mine density',
+    optParsePercent,
+    0.1
+  )
   .parse(process.argv);
 
 async function main() {
