@@ -20,14 +20,18 @@ class Nsweeper {
 
   static MINE = 'X';
 
-  select(indexesArray, board = this.board) {
-    Nsweeper.validateSelection(indexesArray, this.dim, this.size);
+  select(indexesArray) {
+    try {
+      Nsweeper.validateSelection(indexesArray, this.dim, this.size);
+    } catch (err) {
+      return { val: null, err: 'Invalid selection for this board' };
+    }
     this.moves.push(indexesArray);
-    const val = Nsweeper.peek(indexesArray, board);
+    const val = Nsweeper.peek(indexesArray, this.board);
     if (val === Nsweeper.MINE) {
       this.mineSelected = true;
     }
-    return val;
+    return { val, err: null };
   }
 
   static peek(indexesArray, board) {
@@ -143,7 +147,7 @@ class Nsweeper {
 
   static validateSelection(indexesArray, dim, size) {
     check.assert.array.of.integer(indexesArray);
-    check.assert.array.of.lessOrEqual(indexesArray, size);
+    check.assert.array.of.less(indexesArray, size);
     check.assert.array.of.greaterOrEqual(indexesArray, 0);
     check.assert.equal(indexesArray.length, dim);
   }

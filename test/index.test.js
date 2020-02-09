@@ -16,7 +16,7 @@ describe('nsweeper', function() {
     });
   });
 
-  describe('#select', function() {
+  describe('select', function() {
     it('should be able to play a game', function() {
       const dim = 2;
       const size = 5;
@@ -25,7 +25,9 @@ describe('nsweeper', function() {
       assert(game.mineSelected === mineSelectedState);
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          const revealed = game.select([i, j]);
+          const resp = game.select([i, j]);
+          const revealed = resp.val;
+          assert(resp.err === null);
           if (revealed === Nsweeper.MINE) {
             mineSelectedState = true;
           }
@@ -35,6 +37,33 @@ describe('nsweeper', function() {
         }
       }
       assert(game.moves.length === Math.pow(size, dim));
+    });
+    it('should not throw but return error strings', function() {
+      const dim = 2;
+      const size = 5;
+      const game = new Nsweeper({ dim, size });
+      let resp;
+
+      // Invalid selections
+      resp = game.select([5, 0]);
+      assert(resp.val === null);
+      assert.isString(resp.err);
+      resp = game.select([0, 5]);
+      assert(resp.val === null);
+      assert.isString(resp.err);
+      resp = game.select([3, -1]);
+      assert(resp.val === null);
+      assert.isString(resp.err);
+      resp = game.select([3]);
+      assert(resp.val === null);
+      assert.isString(resp.err);
+      resp = game.select([1, 2, 3]);
+      assert(resp.val === null);
+      assert.isString(resp.err);
+
+      // Shouldn't have made moves or changed mineSelected
+      assert.isFalse(game.mineSelected);
+      assert(game.moves.length === 0);
     });
   });
 
