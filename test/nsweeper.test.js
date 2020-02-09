@@ -1,5 +1,5 @@
 const assert = require('chai').assert;
-const Nsweeper = require('../index');
+const Nsweeper = require('../nsweeper');
 
 describe('nsweeper', function() {
   describe('constructor', function() {
