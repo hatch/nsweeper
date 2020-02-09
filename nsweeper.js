@@ -38,7 +38,19 @@ class Nsweeper {
   }
 
   static addMoveAndOpenNeighbors(dim, size, indexesArray, board, moves) {
-    moves.push(JSON.stringify(indexesArray));
+    const curIndexString = JSON.stringify(indexesArray);
+    if (moves.indexOf(curIndexString) !== -1) {
+      return;
+    }
+    moves.push(curIndexString);
+    const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
+    const validNeighbors = neighbors.filter(nIndexes => {
+      const nVal = Nsweeper.peek(nIndexes, board);
+      return nVal !== Nsweeper.MINE && moves.indexOf(JSON.stringify(nIndexes)) === -1;
+    });
+    validNeighbors.map(nIndexes => {
+      Nsweeper.addMoveAndOpenNeighbors(dim, size, nIndexes, board, moves);
+    });
   }
 
   static peek(indexesArray, board) {
@@ -178,7 +190,7 @@ class Nsweeper {
     }
 
     const curIndexString = JSON.stringify(indexesArray);
-    if (moves.indexOf(curIndexString) != -1) {
+    if (moves.indexOf(curIndexString) !== -1) {
       return Nsweeper.ERROR_STRINGS.dup;
     }
   }

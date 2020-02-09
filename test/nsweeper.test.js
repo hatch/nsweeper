@@ -26,14 +26,16 @@ describe('nsweeper', function() {
       for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
           const resp = game.select([i, j]);
-          const revealed = resp.val;
-          assert(resp.err === null);
-          if (revealed === Nsweeper.MINE) {
-            mineSelectedState = true;
+          if (resp.err) {
+            assert(resp.err === Nsweeper.ERROR_STRINGS.dup);
+          } else {
+            if (resp.val === Nsweeper.MINE) {
+              mineSelectedState = true;
+            }
+            assert.include([0, 1, 2, 3, 4, 5, 6, 7, 8, Nsweeper.MINE], resp.val);
           }
-          assert.include([0, 1, 2, 3, 4, 5, 6, 7, 8, Nsweeper.MINE], revealed);
           assert(game.mineSelected === mineSelectedState);
-          assert.deepEqual(JSON.stringify([i, j]), game.moves[game.moves.length - 1]);
+          assert(game.moves.indexOf(JSON.stringify([i, j])) !== -1);
         }
       }
       assert(game.moves.length === Math.pow(size, dim));
@@ -76,9 +78,6 @@ describe('nsweeper', function() {
       assert(resp.val === null);
       assert.isString(resp.err);
       assert.equal(resp.err, Nsweeper.ERROR_STRINGS.dup);
-
-      // Should only have one move
-      assert(game.moves.length === 1);
     });
   });
 
