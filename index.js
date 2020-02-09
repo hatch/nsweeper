@@ -8,11 +8,13 @@ const commander = require('commander');
 
 const unselectedChar = '▆';
 const mineChar = 'X';
+const flagChar = '⚑';
 const helpText = `
 Select coordination with a list of numbers separated by a non number character.
 Example: "1 2" will pick top row, one to the right on a grid.
 Additional dimensions require additional numbers, for example this would be a
  valid coordinate set for a 4 dimensional board: "1 2 3 4".
+You can flag/unflag coordinates by preceeding them with the letter f.
 `;
 
 const program = new commander.Command();
@@ -87,6 +89,14 @@ async function main() {
       process.stdout.write(prompt);
       continue;
     }
+    if (line.startsWith('f')) {
+      console.log('=> Toggling flag...\n');
+      const indexes = parseSelection(line);
+      game.toggleFlag(indexes);
+      printGame(game);
+      process.stdout.write(prompt);
+      continue;
+    }
     const indexes = parseSelection(line);
     const resp = game.select(indexes);
     if (resp.err) {
@@ -137,7 +147,11 @@ function printGame(game, fullBoard = false) {
     if (visibile || fullBoard) {
       writeCell(val);
     } else {
-      writeCell(unselectedChar);
+      if (game.flags.indexOf(curIndexString) !== -1) {
+        writeCell(flagChar);
+      } else {
+        writeCell(unselectedChar);
+      }
     }
     if (transition) {
       writeNewline();

@@ -68,8 +68,8 @@ class Nsweeper {
     }
     const flagString = JSON.stringify(indexesArray);
     if (this.flags.indexOf(flagString) !== -1) {
-      Nsweeper.removeValueFromArray(flags, flagString);
-      Nsweeper.removeValueFromArray(validFlags, flagString);
+      Nsweeper.removeValueFromArray(this.flags, flagString);
+      Nsweeper.removeValueFromArray(this.validFlags, flagString);
     } else {
       this.flags.push(flagString);
       let val = Nsweeper.peek(indexesArray, this.board);
