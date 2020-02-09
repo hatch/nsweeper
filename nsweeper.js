@@ -9,7 +9,7 @@ class Nsweeper {
     dup: 'Already selected those coordinations',
   };
 
-  constructor({ dim = 2, size = 10, density = 0.2 } = {}) {
+  constructor({ dim = 2, size = 10, density = 0.2, autoWin = false } = {}) {
     Nsweeper.validate({ dim, size, density, maxBoardSize: 1000 * 1000 * 1000 });
 
     [this.board, this.mineCount] = Nsweeper.buildBoard({ dim, size, density });
@@ -25,6 +25,7 @@ class Nsweeper {
     this.validFlags = [];
     this.mineSelected = false;
     this.boardSize = Math.pow(size, dim);
+    this.autoWin = autoWin;
   }
 
   select(indexesArray) {
@@ -88,8 +89,10 @@ class Nsweeper {
   checkWin() {
     if (
       !this.mineSelected &&
-      (this.moves.length + this.mineCount === this.boardSize ||
-        (this.flags.length === this.validFlags.length && this.validFlags.length === this.mineCount))
+      ((this.autoWin && this.moves.length + this.mineCount === this.boardSize) ||
+        (this.flags.length === this.validFlags.length &&
+          this.validFlags.length === this.mineCount &&
+          this.moves.length + this.mineCount === this.boardSize))
     ) {
       return true;
     }
@@ -117,7 +120,7 @@ class Nsweeper {
     Nsweeper.removeValueFromArray(flags, curIndexString);
     Nsweeper.removeValueFromArray(validFlags, curIndexString);
 
-    const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray });
+    const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray, aligned: true });
     const validNeighbors = neighbors.filter(nIndexes => {
       const nVal = Nsweeper.peek(nIndexes, board);
       return nVal !== Nsweeper.MINE && moves.indexOf(JSON.stringify(nIndexes)) === -1;
@@ -221,7 +224,7 @@ class Nsweeper {
     }
   }
 
-  static getNeighbors({ dim, size, indexesArray }) {
+  static getNeighbors({ dim, size, indexesArray, aligned = false }) {
     let neighbors = [];
     // Array of modifier sets which, when applied to the indexesArray,
     // will produce one of the possible neighbors
@@ -232,6 +235,11 @@ class Nsweeper {
     while (mod !== undefined) {
       // Skip input indexesArray
       if (check.array.of.equal(mod, 0)) {
+        mod = modifiers.next();
+        continue;
+      }
+      // Only finds neighbors that share at least one unmodified dimension
+      if (aligned && mod.indexOf(0) === -1) {
         mod = modifiers.next();
         continue;
       }

@@ -28,6 +28,13 @@ function optParsePercent(value) {
   return parseFloat(value);
 }
 
+function optParseBool(value) {
+  if (value === 'f' || value === 'false' || value === 'no' || value === '0') {
+    return false;
+  }
+  return !!value;
+}
+
 program
   .option('-s, --size <number>', 'size of board along each dimension', optParseInt, 10)
   .option('-d, --dimension <number>', 'number of dimensions', optParseInt, 2)
@@ -37,6 +44,7 @@ program
     optParsePercent,
     0.5
   )
+  .option('-w, --easywin <boolean>', 'do not require flagging all mines', optParseBool, false)
   .parse(process.argv);
 
 async function main() {
@@ -46,6 +54,7 @@ async function main() {
       dim: program.dimension,
       size: program.size,
       density: program.difficulty,
+      autoWin: program.easywin,
     });
   } catch (err) {
     console.log('Could not initialize game, see error below.');
@@ -63,7 +72,9 @@ async function main() {
   console.log(
     `=> Initialized nsweeper board with ${game.dim} dimensions, ${
       game.size
-    } length per dimension, containing ${Math.floor(game.density * 100)}% mines.
+    } length per dimension, containing ${Math.floor(game.density * 100)}% mines. Easy win is ${
+      game.autoWin ? 'on' : 'off'
+    }.
   `
   );
   printGame(game);
