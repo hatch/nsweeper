@@ -32,7 +32,9 @@ describe('nsweeper', function() {
             if (resp.val === Nsweeper.MINE) {
               mineSelectedState = true;
             }
-            assert.include([0, 1, 2, 3, 4, 5, 6, 7, 8, Nsweeper.MINE], resp.val);
+            if (!game.checkWin()) {
+              assert.include([0, 1, 2, 3, 4, 5, 6, 7, 8, Nsweeper.MINE], resp.val);
+            }
           }
           assert(game.mineSelected === mineSelectedState);
           assert(game.moves.indexOf(JSON.stringify([i, j])) !== -1);
@@ -145,14 +147,14 @@ describe('nsweeper', function() {
   describe('Nsweeper.buildBoard', function() {
     it('should handle 1 dimension', function() {
       const [dim, size, density] = [1, 5, 0.2];
-      const board = Nsweeper.buildBoard({ dim, size, density });
+      const [board, _] = Nsweeper.buildBoard({ dim, size, density });
       assert(board.length === 5);
       assert(!Array.isArray(board[0]));
       assert(!Array.isArray(board[4]));
     });
     it('should handle 2 dimensions all mines', function() {
       const [dim, size, density] = [2, 5, 1];
-      const board = Nsweeper.buildBoard({ dim, size, density });
+      const [board, _] = Nsweeper.buildBoard({ dim, size, density });
       assert(board.length === 5);
       const X = Nsweeper.MINE;
       assert.sameDeepOrderedMembers(board, [
@@ -165,7 +167,7 @@ describe('nsweeper', function() {
     });
     it('should handle 2 dimensions no mines', function() {
       const [dim, size, density] = [2, 5, 0];
-      const board = Nsweeper.buildBoard({ dim, size, density });
+      const [board, _] = Nsweeper.buildBoard({ dim, size, density });
       assert(board.length === 5);
       const X = Nsweeper.MINE;
       assert.sameDeepOrderedMembers(board, [
