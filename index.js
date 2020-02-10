@@ -5,6 +5,7 @@ const readline = require('readline');
 const clear = require('clear');
 const Nsweeper = require('./nsweeper');
 const commander = require('commander');
+const chalk = require('chalk');
 
 const unselectedChar = '▆';
 const mineChar = 'X';
@@ -146,12 +147,14 @@ function printGame(game, fullBoard = false) {
         break;
       }
     }
+    // Column headers
     if (horizontalHeaderNeeded) {
       printHeaderIndexes(game.size, thirdDimesionHeader);
     }
+    // Top left corner 3D+ indicator
     if (i === 0) {
       if (indices.length > 0) {
-        writeCell(row + 1);
+        writeCell(row + 1, chalk.inverse);
       } else {
         writeCell(' ');
       }
@@ -196,22 +199,22 @@ function padCell(input, rightPad = false, padTo = 4) {
   return s;
 }
 
-function writeCell(input) {
+function writeCell(input, modifier = x => x) {
   if (input === Nsweeper.MINE) {
     input = mineChar;
   }
   const stringPaddedInput = padCell(input);
-  process.stdout.write(stringPaddedInput);
+  process.stdout.write(modifier(stringPaddedInput));
 }
 
 function printHeaderIndexes(size, header = null) {
   writeNewline();
   if (header) {
-    process.stdout.write(padCell(header, true));
+    process.stdout.write(chalk.inverse(padCell(header, true)));
   } else {
-    writeCell(' ');
+    writeCell(' ', chalk.inverse);
   }
-  Array.from({ length: size }, (_, x) => writeCell(x + 1));
+  Array.from({ length: size }, (_, x) => writeCell(x + 1, chalk.inverse));
   writeNewline();
 }
 
