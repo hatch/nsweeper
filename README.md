@@ -65,7 +65,6 @@ Gif example:
 
 ## Todo
 
-- Currently the algorithm to reveal neighbors is incorrect and needs to be updated to only reveal neighbors around coordinates with 0 nearby mines. Might be nice to use `align` on `getNeighbors` as a "hard mode" option. This would have the effect of, for example, not walking to corners on a 2D board if they're 0.
 - Web app deployment.
 
 ## Authors
