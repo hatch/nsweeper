@@ -110,9 +110,9 @@ class Nsweeper {
   }
 
   static addMoveAndOpenNeighbors(dim, size, indexesArray, board, moves, flags, validFlags) {
-    // TODO FIXME This algorithm should actually be:
-    // 1. If selection is 0, reveal all spaces around it.
-    // 2. Recurse to all neighbor spaces that are 0.
+    // This algorithm is (I believe) the normal minesweeper one:
+    // 1. If selection is 0, open and search all spaces around it.
+    // 2. Else open and search all neighbor spaces that are 0.
     //
     const curIndexString = JSON.stringify(indexesArray);
     if (moves.indexOf(curIndexString) !== -1) {
@@ -120,18 +120,31 @@ class Nsweeper {
     }
     moves.push(curIndexString);
 
-    // Selection removes the flag
+    // Selection removes flags
     Nsweeper.removeValueFromArray(flags, curIndexString);
     Nsweeper.removeValueFromArray(validFlags, curIndexString);
 
-    const neighbors = Nsweeper.getNeighbors({ dim, size, indexesArray, aligned: true });
-    const validNeighbors = neighbors.filter(nIndexes => {
-      const nVal = Nsweeper.peek(nIndexes, board);
-      return nVal !== Nsweeper.MINE && moves.indexOf(JSON.stringify(nIndexes)) === -1;
+    const neighbors = Nsweeper.getNeighbors({
+      dim,
+      size,
+      indexesArray,
     });
-    validNeighbors.map(nIndexes => {
-      Nsweeper.addMoveAndOpenNeighbors(dim, size, nIndexes, board, moves, flags, validFlags);
-    });
+    const curVal = Nsweeper.peek(indexesArray, board);
+    // If 0, recurse into all neighbors
+    if (curVal === 0) {
+      neighbors.map(nIndexes => {
+        Nsweeper.addMoveAndOpenNeighbors(dim, size, nIndexes, board, moves, flags, validFlags);
+      });
+    } else {
+      // Else recurse into neighbors with value of 0
+      const zeroNeighbors = neighbors.filter(nIndexes => {
+        const nVal = Nsweeper.peek(nIndexes, board);
+        return nVal === 0 && moves.indexOf(JSON.stringify(nIndexes)) === -1;
+      });
+      zeroNeighbors.map(nIndexes => {
+        Nsweeper.addMoveAndOpenNeighbors(dim, size, nIndexes, board, moves, flags, validFlags);
+      });
+    }
   }
 
   static removeValueFromArray(arr, val) {
