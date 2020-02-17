@@ -111,8 +111,9 @@ class Nsweeper {
 
   static addMoveAndOpenNeighbors(dim, size, indexesArray, board, moves, flags, validFlags) {
     // This algorithm is (I believe) the normal minesweeper one:
-    // 1. If selection is 0, open and search all spaces around it.
-    // 2. Else open and search all neighbor spaces that are 0.
+    // 1. Reveal selected space
+    // 2. If selection is 0, reveal all spaces around it.
+    // 3. Search all neighbor spaces, for all that are 0, recurse.
     //
     const curIndexString = JSON.stringify(indexesArray);
     if (moves.indexOf(curIndexString) !== -1) {
@@ -241,7 +242,7 @@ class Nsweeper {
     }
   }
 
-  static getNeighbors({ dim, size, indexesArray, aligned = false }) {
+  static getNeighbors({ dim, size, indexesArray }) {
     let neighbors = [];
     // Array of modifier sets which, when applied to the indexesArray,
     // will produce one of the possible neighbors
@@ -252,11 +253,6 @@ class Nsweeper {
     while (mod !== undefined) {
       // Skip input indexesArray
       if (check.array.of.equal(mod, 0)) {
-        mod = modifiers.next();
-        continue;
-      }
-      // Only finds neighbors that share at least one unmodified dimension
-      if (aligned && mod.indexOf(0) === -1) {
         mod = modifiers.next();
         continue;
       }
