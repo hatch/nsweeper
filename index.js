@@ -46,9 +46,11 @@ program
     0.5
   )
   .option('-w, --easywin <boolean>', 'do not require flagging all mines', optParseBool, false)
+  .option('-t, --test <boolean>', 'for testing, build board and exit with duration', optParseBool, false)
   .parse(process.argv);
 
 async function main() {
+  const startDatetime = new Date();
   let game;
   try {
     game = new Nsweeper({
@@ -61,6 +63,10 @@ async function main() {
     console.log('Could not initialize game, see error below.');
     console.log(err);
     process.exit(1);
+  }
+  if (program.test) {
+    console.log(`Test: board build duration ${new Date() - startDatetime} ms.`);
+    process.exit(0);
   }
 
   const rl = readline.createInterface({
