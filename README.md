@@ -38,7 +38,7 @@ $ nsweeper -d 3 -s 5
 Play on the command line:
 
 ```
-=> Initialized nsweeper board with 3 dimensions, 3 length per dimension, containing 50% mines. Easy win is off.
+=> Initialized nsweeper board with 3 dimensions, 3 length per dimension, containing 20% mines. Easy win is off.
 
 
 1      1   2   3
@@ -66,6 +66,7 @@ Gif example:
 ## Todo
 
 - Web app deployment.
+- Show which flags are incorrect on board reveal.
 
 ## Authors
 
