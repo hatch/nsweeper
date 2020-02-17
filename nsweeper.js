@@ -161,16 +161,31 @@ class Nsweeper {
     return toReturn;
   }
 
+  static addOne(indexesArray, board) {
+    let item = board;
+    for (let i = 0; i < indexesArray.length - 1; i++) {
+      item = item[indexesArray[i]];
+    }
+    const finalIndex = indexesArray[indexesArray.length - 1];
+    // console.log(`Adding one to ${indexesArray} which is ${item[finalIndex]}`); // DEBUG
+    if (item[finalIndex] === Nsweeper.MINE) {
+      throw new Error('Cannot add one to MINE');
+    }
+    item[indexesArray[indexesArray.length - 1]] = item[indexesArray[indexesArray.length - 1]] + 1;
+  }
+
   static buildBoard({ dim, size, density }) {
     // Size board
-    const board = Nsweeper.createArray(dim, size);
+    let board = Nsweeper.createArray(dim, size);
     let mineCount = 0;
+    const mineLocations = [];
 
     // First pass, add mines
     const addMineCondition = () => Math.random() < density;
-    const addMineEffect = ({ arr, i }) => {
+    const addMineEffect = ({ arr, indices, i }) => {
       arr[i] = Nsweeper.MINE;
       mineCount++;
+      mineLocations.push([...indices, i]);
     };
     Nsweeper.nestedArrayIterator({
       originalArr: board,
@@ -180,7 +195,18 @@ class Nsweeper {
       effect: addMineEffect,
     });
 
-    // Second pass, add numbers
+    // Performance optimization
+    if (density < 0.5) {
+      board = Nsweeper.buildBoardByMineLocation(dim, size, board, mineLocations);
+    } else {
+      board = Nsweeper.buildBoardByNeighborMineCount(dim, size, board);
+    }
+
+    return [board, mineCount];
+  }
+
+  static buildBoardByNeighborMineCount(dim, size, board) {
+    // This looks through each space's neighbors for mines and counts them
     const addNumberCondition = ({ arr, i }) => {
       // Skip mines, don't want to overwrite with numbers
       return arr[i] !== Nsweeper.MINE;
@@ -192,7 +218,6 @@ class Nsweeper {
         size,
         indexesArray: [...indices, i],
       });
-
       // Add up mines on neighbors
       arr[i] = Nsweeper.countMines(neighbors, originalArr);
     };
@@ -203,8 +228,24 @@ class Nsweeper {
       condition: addNumberCondition,
       effect: addNumberEffect,
     });
+    return board;
+  }
 
-    return [board, mineCount];
+  static buildBoardByMineLocation(dim, size, board, mineLocations) {
+    // This adds one to all non-mine neighbors of each mine location
+    for (let i = 0; i < mineLocations.length; i++) {
+      const neighbors = Nsweeper.getNeighbors({
+        dim,
+        size,
+        indexesArray: mineLocations[i],
+      });
+      for (let nIndex = 0; nIndex < neighbors.length; nIndex++) {
+        if (Nsweeper.peek(neighbors[nIndex], board) !== Nsweeper.MINE) {
+          Nsweeper.addOne(neighbors[nIndex], board);
+        }
+      }
+    }
+    return board;
   }
 
   static countMines(indexesArray, board) {
@@ -223,6 +264,8 @@ class Nsweeper {
       for (let i = 0; i < arr.length; i++) {
         arr[i] = Nsweeper.createArray(dim - 1, size);
       }
+    } else {
+      arr.fill(0);
     }
 
     return arr;
