@@ -43,7 +43,7 @@ program
     '-x, --difficulty <float>',
     'difficulty, a float between 0 and 1 that reflects mine density',
     optParsePercent,
-    0.5
+    0.2
   )
   .option('-w, --easywin <boolean>', 'do not require flagging all mines', optParseBool, false)
   .option('-t, --test <boolean>', 'for testing, build board and exit with duration', optParseBool, false)
