@@ -29,7 +29,7 @@
     "prettier": "^1.19.1"
   },
   "dependencies": {
-    "chalk": "^3.0.0",
+    "chalk": "^4.0.0",
     "check-types": "^11.1.2",
     "clear": "^0.1.0",
     "commander": "^4.1.1",
